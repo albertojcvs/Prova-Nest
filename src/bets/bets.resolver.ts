@@ -1,4 +1,8 @@
-import { Resolver } from '@nestjs/graphql';
+import { Query, Resolver } from '@nestjs/graphql';
+import { Bet } from './bet.entity';
 
 @Resolver()
-export class BetsResolver {}
+export class BetsResolver {
+    @Query(() => [Bet])
+    async bets(){}
+}
