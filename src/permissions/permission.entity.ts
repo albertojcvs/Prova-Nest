@@ -1,3 +1,4 @@
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -6,17 +7,22 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({name:'permissions'})
+@ObjectType()
+@Entity({ name: 'permissions' })
 export class Permission {
+  @Field( () => ID)
   @PrimaryGeneratedColumn()
-  id: string;''
+  id: string;
 
-  @Column({ nullable: false, unique:true })
+  @Field()
+  @Column({ nullable: false, unique: true })
   name: string;
 
+  @Field()
   @CreateDateColumn()
   createdAt: Date;
 
+  @Field()
   @UpdateDateColumn()
   updatedAt: Date;
 }
