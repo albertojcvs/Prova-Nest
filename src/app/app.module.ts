@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { BetsModule } from './bets/bets.module';
-import { PermissionsModule } from './permissions/permissions.module';
-import { GamesModule } from './games/games.module';
+import { UsersModule } from '../users/users.module';
+import { BetsModule } from '../bets/bets.module';
+import { PermissionsModule } from '../permissions/permissions.module';
+import { GamesModule } from '../games/games.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
