@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Permission } from 'src/permissions/permission.entity';
 import { Repository } from 'typeorm';
 import { SaveUserDTO } from './dto/SaveUserDTO';
 import { UserAttributeAlreadyExistsExecetion } from './exceptions/UserAttrubuteAlreayExists.exeception';
@@ -10,6 +11,8 @@ import { User } from './user.entity';
 export class UsersService {
   constructor(
     @InjectRepository(User) private usersReposository: Repository<User>,
+    @InjectRepository(Permission)
+    private permissionsRepository: Repository<Permission>,
   ) {}
 
   private async validateUserRequiredAttributesExists({ email }: SaveUserDTO) {
@@ -24,7 +27,13 @@ export class UsersService {
   async create(data: SaveUserDTO) {
     await this.validateUserRequiredAttributesExists(data);
 
+    const userPermission = await this.permissionsRepository.findOne({
+      where: { name: 'player' },
+    });
+
     const user = this.usersReposository.create(data);
+
+    user.permissions = [userPermission];
 
     return await this.usersReposository.save(user);
   }
