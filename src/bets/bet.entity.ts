@@ -24,12 +24,11 @@ export class Bet {
   numbers: string;
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.bets)
+  @ManyToOne(() => User, (user) => user.bets  )
   user: User;
 
-
   @Field(() => Game)
-  @ManyToOne(() => Game, (game) => game.bets)
+  @ManyToOne(() => Game, (game) => game.bets, { eager: true })
   game: Game;
 
   @Field()
