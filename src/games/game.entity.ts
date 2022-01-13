@@ -5,13 +5,12 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 @ObjectType()
 @Entity({ name: 'games' })
 export class Game {
-
   @Field(() => ID)
   @PrimaryGeneratedColumn()
   id: string;
 
   @Field()
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   type: string;
 
   @Field()
