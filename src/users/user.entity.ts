@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
 import { genSalt, hash } from 'bcrypt';
 import { Bet } from 'src/bets/bet.entity';
 import { Permission } from 'src/permissions/permission.entity';
@@ -30,7 +30,7 @@ export class User {
   @Column({ unique: true, nullable: false })
   email: string;
 
-  @Field()
+  @HideField()
   @Column({ nullable: false })
   password: string;
 

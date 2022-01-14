@@ -48,6 +48,14 @@ export class UsersService {
     return user;
   }
 
+  async getOneBy(key: string, value: any) {
+    const whereOptions = {};
+    whereOptions[key] = value;
+    const user = await this.usersReposository.findOne(whereOptions);
+    if (!user) throw new UserNotFoundException();
+    return user;
+  }
+
   async update(id: string, data: SaveUserDTO) {
     await this.validateUserRequiredAttributesExists(data);
 
