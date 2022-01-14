@@ -8,13 +8,14 @@ import { GamesModule } from '../games/games.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
-
+import { config as dbConfig } from '../configs/database';
 @Module({
   imports: [
     GraphQLModule.forRoot({
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      context: ({ req }) => req,
     }),
-    TypeOrmModule.forRoot(),
+    TypeOrmModule.forRoot(dbConfig),
     UsersModule,
     BetsModule,
     PermissionsModule,

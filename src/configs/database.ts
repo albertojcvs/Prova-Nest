@@ -1,0 +1,18 @@
+import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+
+export const config:TypeOrmModuleOptions = {
+    "type": "mysql",
+    "host": "db",
+    "port": 3306,
+    "username": "root",
+    "password": "docker",
+    "database": "prova_nest",
+    "entities": ["dist/**/*.entity{.ts,.js}"],
+    "synchronize": true,
+    "logging":false,
+    "migrations": ["dist/**/migration/**/*{.ts,.js}"],
+    "cli": {
+      "migrationsDir": "src/migration"
+    }
+  }
+  
