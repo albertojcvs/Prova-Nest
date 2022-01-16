@@ -14,7 +14,7 @@ export class Game {
   type: string;
 
   @Field()
-  @Column({ nullable: false })
+  @Column({ nullable: false, type:'text'})
   description: string;
 
   @Field()
@@ -22,7 +22,7 @@ export class Game {
   range: number;
 
   @Field()
-  @Column({ nullable: false })
+  @Column({ nullable: false, type: 'float' })
   price: number;
 
   @Field()
