@@ -43,6 +43,18 @@ export class PermissionsService {
     return permission;
   }
 
+  async getOneBy(key:string, value:any){
+    
+    const whereOptions = {}
+    whereOptions[key] = value
+
+    const permission = await this.permissionsRepository.findOne({where:whereOptions});
+    
+    if (!permission) throw new PermissionNotFound();
+
+    return permission;
+  }
+
   async update(id: string, data: SavePermissionDTO) {
     await this.validateIfPermissionRequiredAttrbutesExists(data);
 

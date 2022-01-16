@@ -1,11 +1,17 @@
+import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { GQLAuthGuard } from 'src/auth/guards/gqlAuth.guard';
+import { IsAdminGuard } from 'src/users/guards/IsAdminGuard';
 import { SavePermissionDTO } from './dto/SavePermissionDTO';
 import { Permission } from './permission.entity';
 import { PermissionsService } from './permissions.service';
 
 @Resolver()
+@UseGuards(GQLAuthGuard)
+@UseGuards(IsAdminGuard)
 export class PermissionsResolver {
   constructor(private permissionsService: PermissionsService) {}
+
   @Query(() => [Permission])
   async permissions() {
     return await this.permissionsService.getAll();
