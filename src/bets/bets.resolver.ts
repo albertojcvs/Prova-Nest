@@ -1,9 +1,12 @@
+import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { CreateGameDTO } from 'src/games/dto/CreateGameDTO';
+import { GQLAuthGuard } from 'src/auth/guards/gqlAuth.guard';
 import { Bet } from './bet.entity';
 import { BetsService } from './bets.service';
+import { CreateBetDTO } from './dto/CreateBetDto';
 
 @Resolver()
+@UseGuards(GQLAuthGuard)
 export class BetsResolver {
   constructor(private betsService: BetsService) {}
 
@@ -18,7 +21,7 @@ export class BetsResolver {
   }
 
   @Mutation(() => Bet)
-  async createBet(@Args('data') data: CreateGameDTO) {
+  async createBet(@Args('data') data: CreateBetDTO) {
     return await this.betsService.create(data);
   }
 
