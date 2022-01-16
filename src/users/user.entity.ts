@@ -13,10 +13,11 @@ import {
   OneToMany,
   BeforeInsert,
   BeforeUpdate,
+  JoinColumn,
 } from 'typeorm';
 
 @ObjectType()
-@Entity()
+@Entity({ name: 'users' })
 export class User {
   @Field(() => ID)
   @PrimaryGeneratedColumn()
@@ -35,8 +36,8 @@ export class User {
   password: string;
 
   @Field(() => [Permission])
-  @ManyToMany(() => Permission)
-  @JoinTable({ name: 'user_permissions' })
+  @ManyToMany(() => Permission, { eager: true, })
+  @JoinTable({ name: 'user_permissions'})
   permissions: Permission[];
 
   @Field(() => [Bet])

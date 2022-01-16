@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Permission } from 'src/permissions/permission.entity';
+import { PermissionsService } from 'src/permissions/permissions.service';
 import { Repository } from 'typeorm';
 import { SaveUserDTO } from './dto/SaveUserDTO';
 import { UserAttributeAlreadyExistsExecetion } from './exceptions/UserAttrubuteAlreayExists.exeception';
@@ -11,8 +11,9 @@ import { User } from './user.entity';
 export class UsersService {
   constructor(
     @InjectRepository(User) private usersReposository: Repository<User>,
-    @InjectRepository(Permission)
-    private permissionsRepository: Repository<Permission>,
+
+    @Inject(forwardRef(() => PermissionsService))
+    private permissionsService: PermissionsService,
   ) {}
 
   private async validateUserRequiredAttributesExists({ email }: SaveUserDTO) {
@@ -27,9 +28,10 @@ export class UsersService {
   async create(data: SaveUserDTO) {
     await this.validateUserRequiredAttributesExists(data);
 
-    const userPermission = await this.permissionsRepository.findOne({
-      where: { name: 'player' },
-    });
+    const userPermission = await this.permissionsService.getOneBy(
+      'name',
+      'player',
+    );
 
     const user = this.usersReposository.create(data);
 
@@ -51,7 +53,7 @@ export class UsersService {
   async getOneBy(key: string, value: any) {
     const whereOptions = {};
     whereOptions[key] = value;
-    const user = await this.usersReposository.findOne(whereOptions);
+    const user = await this.usersReposository.findOne({ where: whereOptions });
     if (!user) throw new UserNotFoundException();
     return user;
   }
