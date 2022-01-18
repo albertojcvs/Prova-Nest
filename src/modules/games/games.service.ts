@@ -43,9 +43,11 @@ export class GamesService {
   }
 
   async update(id: string, data: UpdateGameDTO) {
+   console.log(data);
+   
     await this.validateIfGameRequiredAttributesExists(data);
 
-    await this.gamesRepository.update(id, data);
+    await this.gamesRepository.update(id, {...data});
     const game = await this.gamesRepository.findOne(id);
     if (!game) throw new GameNotFound();
     return game;

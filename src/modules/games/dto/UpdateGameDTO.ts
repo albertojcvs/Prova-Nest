@@ -6,36 +6,36 @@ export class UpdateGameDTO {
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  @Field()
-  type: string;
+  @Field({ nullable: true })
+  type?: string;
 
   @IsOptional()
   @IsNotEmpty()
   @IsNumber()
-  @Field()
-  price: number;
+  @Field({ nullable: true })
+  price?: number;
 
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  @Field()
-  color: string;
+  @Field({ nullable: true })
+  color?: string;
 
   @IsOptional()
   @IsNotEmpty()
   @IsNumber()
-  @Field()
-  range: number;
+  @Field({ nullable: true })
+  range?: number;
 
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  @Field()
-  description: string;
+  @Field({ nullable: true })
+  description?: string;
 
   @IsOptional()
   @IsNotEmpty()
   @IsNumber()
-  @Field()
-  maxNumber: number;
+  @Field({ nullable: true })
+  maxNumber?: number;
 }
