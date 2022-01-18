@@ -1,7 +1,7 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GQLAuthGuard } from 'src/modules/auth/guards/gqlAuth.guard';
-import { IsAdminGuard } from 'src/modules/users/guards/IsAdminGuard';
+import { IsAdminGuard } from 'src/modules/auth/guards/IsAdminGuard';
 import { Cart } from './carts.entity';
 import { CartsService } from './carts.service';
 import { CreateCartDTO } from './dto/CreateCartDTO';
@@ -10,7 +10,7 @@ import { CreateCartDTO } from './dto/CreateCartDTO';
 export class CartsResolver {
   constructor(private cartsService: CartsService) {}
 
-  @UseGuards(IsAdminGuard)
+
   @Query(() => [Cart])
   async carts() {
     return await this.cartsService.getAll();
@@ -21,13 +21,13 @@ export class CartsResolver {
     return await this.cartsService.getOne(id);
   }
 
-  @UseGuards(GQLAuthGuard)
+  @UseGuards(GQLAuthGuard, IsAdminGuard)
   @Mutation(() => Cart)
   async createCart(@Args('data') data: CreateCartDTO) {
     return await this.cartsService.create(data);
   }
 
-  @UseGuards(IsAdminGuard)
+  @UseGuards(GQLAuthGuard, IsAdminGuard)
   @Mutation(() => String)
   async deleteCart(@Args('id') id: string) {
     await this.cartsService.delete(id);
