@@ -17,24 +17,27 @@ export class AuthService {
     email,
     password,
   }: ValidateUserDTO): Promise<AuthenticationResponseDTO> {
-    const user = await this.usersService.getOneBy('email', email);
-    const isSamePassword = await compare( password, user.password);
-    if (user && isSamePassword) {
-      const token = await this.jwtToken(user);
-      return {
-        token,
-        user,
-      };
+    try {
+      const user = await this.usersService.getOneBy('email', email);
+      const isSamePassword = await compare(password, user.password);
+      if (user && isSamePassword) {
+        const token = await this.jwtToken(user);
+        return {
+          token,
+          user,
+        };
+      } else throw new Error();
+    } catch (error) {
+      throw new UnauthorizedException('The email or password is not correct!');
     }
-    throw new UnauthorizedException('Incorrect email or password');
   }
 
   private async jwtToken(user: User): Promise<string> {
     const payload = {
       username: user.username,
-      sub: user.id,
+      id: user.id,
       email: user.email,
     };
-    return this.jwtService.signAsync(payload);
+    return this.jwtService.sign(payload);
   }
 }
