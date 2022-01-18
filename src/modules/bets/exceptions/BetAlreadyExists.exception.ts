@@ -3,6 +3,6 @@ import { Bet } from '../bet.entity';
 
 export class BetAlreadyExistsException extends HttpException {
   constructor(bet: Bet) {
-    super(`The bet ${bet} already exists`, HttpStatus.CONFLICT);
+    super(`The user already has a ${bet.game.type} bet with the numbers: ${bet.numbers}`, HttpStatus.CONFLICT);
   }
 }
