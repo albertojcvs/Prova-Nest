@@ -1,6 +1,8 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GQLAuthGuard } from 'src/modules/auth/guards/gqlAuth.guard';
+import { CurrentUser } from '../auth/decorators/CurrentUser';
+import { User } from '../users/user.entity';
 import { Bet } from './bet.entity';
 import { BetsService } from './bets.service';
 import { CreateBetDTO } from './dto/CreateBetDto';
@@ -20,9 +22,9 @@ export class BetsResolver {
     return await this.betsService.getOne(id);
   }
 
-  @Mutation(() => Bet)
-  async createBet(@Args('data') data: CreateBetDTO) {
-    return await this.betsService.create(data);
+  @Mutation(() => [Bet])
+  async createBet(@Args('data') data: CreateBetDTO, @CurrentUser() user: User) {
+    return await this.betsService.create(data, user);
   }
 
   @Mutation(() => Boolean)

@@ -7,10 +7,13 @@ import { GamesService } from 'src/modules/games/games.service';
 import { User } from 'src/modules/users/user.entity';
 import { UsersService } from 'src/modules/users/users.service';
 import { Repository, Transaction } from 'typeorm';
+import { MailService } from '../mail/mail.service';
 import { Bet } from './bet.entity';
 import { CreateBetDTO } from './dto/CreateBetDto';
 import { BetAlreadyExistsException } from './exceptions/BetAlreadyExists.exception';
+import { BetNotFoundException } from './exceptions/BetNotFound.exception';
 import { BetWrongLenght } from './exceptions/BetWrongLenght.exception';
+import { InsufifcentTotalPrice } from './exceptions/InsuffienteTotalPrice.exception';
 import { NumberOutOfRangeException } from './exceptions/NumberOutOfRange.exception';
 
 @Injectable()
@@ -20,6 +23,7 @@ export class BetsService {
     private cartsService: CartsService,
     private usersService: UsersService,
     private gamesService: GamesService,
+    private mailService: MailService,
   ) {}
 
   async getAll() {
@@ -29,56 +33,74 @@ export class BetsService {
   async getOne(id: string) {
     const bet = await this.betsRepository.findOne({ where: { id } });
 
-    if (!bet) throw new GameNotFound();
+    if (!bet) throw new BetNotFoundException();
 
     return bet;
   }
 
-  async create(data: CreateBetDTO, @CurrentUser() authenticadedUser?: User) {
+  async create(data: CreateBetDTO, user: User) {
     let betsPriceTotal = 0;
-
-    const user = await this.usersService.getOne(authenticadedUser.id);
 
     const bets = data.bets;
 
-    const betsToSave = await Promise.all(
-      bets.map(async (bet) => {
-        const game = await this.gamesService.getOne(bet.gameId);
+    try {
+      const betsToSave = await Promise.all(
+        bets.map(async (bet) => {
+          const game = await this.gamesService.getOne(bet.gameId);
 
-        const betAlreadyExists = await this.betsRepository.findOne({
-          where: { user, numbers: bet.numbers, game },
-        });
+          const betAlreadyExists = await this.betsRepository.findOne({
+            where: { user, numbers: bet.numbers, game },
+          });
 
-        if (betAlreadyExists)
-          throw new BetAlreadyExistsException(betAlreadyExists);
+          if (betAlreadyExists)
+            throw new BetAlreadyExistsException(betAlreadyExists);
+          const betToSave = this.betsRepository.create({
+            user,
+            game,
+            numbers: bet.numbers,
+          });
+          const betNumbersInArray: number[] = bet.numbers
+            .split(', ')
+            .map((number) => Number(number));
 
-        const betToSave = this.betsRepository.create({
-          user,
-          game,
-          numbers: bet.numbers,
-        });
-        const betNumbersInArray: number[] = bet.numbers
-          .split(', ')
-          .map((number) => Number(number));
+          betNumbersInArray.sort();
 
-        betNumbersInArray.sort();
+          console.log(user);
 
-        if (betNumbersInArray.length !== game.maxNumber)
-          throw new BetWrongLenght();
+          if (betNumbersInArray.length !== game.maxNumber)
+            throw new BetWrongLenght();
 
-        if (betNumbersInArray[betNumbersInArray.length - 1] > game.range)
-          throw new NumberOutOfRangeException();
+          if (betNumbersInArray[betNumbersInArray.length - 1] > game.range)
+            throw new NumberOutOfRangeException();
 
-        betsPriceTotal += game.price;
+          betsPriceTotal += game.price;
 
-        return betToSave;
-      }),
-    );
-    const cart = (await this.cartsService.getAll())[0];
+          return betToSave;
+        }),
+      );
+      
+      
+      const cart = (await this.cartsService.getAll())[0];
 
-    if (betsPriceTotal < cart.minValue) throw new Error();
 
-    return this.betsRepository.save(betsToSave);
+      if (betsPriceTotal < cart.minValue) throw new InsufifcentTotalPrice();
+
+      await this.betsRepository.save(betsToSave);
+      
+      this.mailService.sendNewBetsEmail(
+        {
+          from: 'loteria@loteria.com',
+          to: user.email,
+          subject: null,
+        },
+        user,
+        betsToSave,
+      );
+
+      return betsToSave
+    } catch (error) {
+      throw new Error('It is not posible to save duplicated bets!');
+    }
   }
 
   async delete(id: string) {
