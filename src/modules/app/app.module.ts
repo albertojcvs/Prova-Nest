@@ -10,11 +10,13 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
 import { LoginModule } from 'src/modules/login/login.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
+import { MailModule } from '../mail/mail.module';
+import { MailTrapProvider } from 'src/providers/implementations/MailTrapProvider';
 @Module({
   imports: [
     GraphQLModule.forRoot({
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      context: ({ req }) => req,
+      context: ({ req }) => ({ req }),
     }),
     TypeOrmModule.forRoot(),
     UsersModule,
@@ -22,7 +24,8 @@ import { AuthModule } from 'src/modules/auth/auth.module';
     PermissionsModule,
     GamesModule,
     AuthModule,
-    LoginModule
+    LoginModule,
+    MailModule.register({ func: () => new MailTrapProvider() }),
   ],
   controllers: [AppController],
   providers: [AppService],
