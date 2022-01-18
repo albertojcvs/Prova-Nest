@@ -2,6 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PermissionsService } from 'src/modules/permissions/permissions.service';
 import { Repository } from 'typeorm';
+import { MailService } from '../mail/mail.service';
 import { SaveUserDTO } from './dto/SaveUserDTO';
 import { UserAttributeAlreadyExistsExecetion } from './exceptions/UserAttrubuteAlreayExists.exeception';
 import { UserNotFoundException } from './exceptions/UserNotFound.exception';
@@ -11,7 +12,7 @@ import { User } from './user.entity';
 export class UsersService {
   constructor(
     @InjectRepository(User) private usersReposository: Repository<User>,
-
+    private mailService: MailService,
     @Inject(forwardRef(() => PermissionsService))
     private permissionsService: PermissionsService,
   ) {}
@@ -37,6 +38,15 @@ export class UsersService {
 
     user.permissions = [userPermission];
 
+    await this.mailService.sendNewUserEmail(
+      {
+        from: 'loteria@loteria.com',
+        to: user.email,
+        subject: null,
+      },
+      user,
+    );
+
     return await this.usersReposository.save(user);
   }
 
@@ -61,7 +71,7 @@ export class UsersService {
   async update(id: string, data: SaveUserDTO) {
     await this.validateUserRequiredAttributesExists(data);
 
-    await this.usersReposository.update(id, data);
+    await this.usersReposository.update(id, {...data});
 
     const user = await this.usersReposository.findOne(id);
 
